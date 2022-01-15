@@ -1,0 +1,16 @@
+# Launch stig_panos_ndm role
+
+- name: Running stig_panos_ndm role
+  hosts: panos_devices
+  connection: local
+  serial: 1
+  vars_prompt:
+    - name: username
+      prompt: Automation account username for authenticating to the PAN device
+      private: no
+
+    - name: password
+      prompt: Automation account password for authentication to the PAN device
+      private: yes
+  roles:
+    - stig_panos_ndm

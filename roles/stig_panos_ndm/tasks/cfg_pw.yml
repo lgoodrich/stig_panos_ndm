@@ -1,0 +1,53 @@
+# Test all the pw complexity inputs here. In case someone overrides the default
+# values with something below minimum standard. Fail out and notify them if they
+# do. - LWG
+- name: "cfg_pw : Test STIG password complexity inputs"
+  assert:
+    that:
+      - cfg_pw_complexity_enabled == 'yes'
+      - cfg_pw_first_login_change == 'yes'
+      - cfg_pw_min_length == 15
+      - cfg_pw_min_history_count >= 5
+      - cfg_pw_min_ucase_letters >= 1
+      - cfg_pw_min_lcase_letters >= 1
+      - cfg_pw_min_numeric_letters >= 1
+      - cfg_pw_min_special_chars >= 1
+      - cfg_pw_min_char_diff >= 8
+      - cfg_pw_block_pwchange_period >= 1
+      - cfg_pw_max_exp_period <= 60
+    success_msg: "All input values for password complexity meet STIG requirements"
+    fail_msg: "One or more input values for password complexity do not meet STIG requirements"
+
+
+# Pay attention to element here... to use a literal block scalar(|) we need the
+# 4 whitespaces preceeding each XML tag/element. Without it panos will bark that
+# this will break config validity. - LWG
+# Per STIG rule 77213 - Device must have minimum pw length
+# Per STIG rule 77215 - Device must have minimum pw history count
+# Per STIG rule 77217 - Device must have minimum pw upper case letters
+# Per STIG rule 77219 - Device must have minimum pw lower case letters
+# Per STIG rule 77221 - Device must have minimum pw numeric letters
+# Per STIG rule 77223 - Device must have minimum pw special chars
+# Per STIG rule 77225 - Device must have minimum pw different chars
+# Per STIG rule 77229 - Device must have enforce pw change block period
+# Per STIG rule 77231 - Device must have enforce pw change exp period
+# Per STIG rule 77253 - Device must have enforce pw change on first login
+- name : "cfg_pw : Configure password complexity"
+  panos_config_element:
+    provider: '{{ provider }}'
+    xpath: "/config/mgt-config/password-complexity"
+    element: |
+          <enabled>{{ cfg_pw_complexity_enabled }}</enabled>
+          <minimum-length>{{ cfg_pw_min_length }}</minimum-length>
+          <password-history-count>{{ cfg_pw_min_history_count }}</password-history-count>
+          <minimum-uppercase-letters>{{ cfg_pw_min_ucase_letters }}</minimum-uppercase-letters>
+          <minimum-lowercase-letters>{{ cfg_pw_min_lcase_letters }}</minimum-lowercase-letters>
+          <minimum-numeric-letters>{{ cfg_pw_min_numeric_letters }}</minimum-numeric-letters>
+          <minimum-special-characters>{{ cfg_pw_min_special_chars }}</minimum-special-characters>
+          <new-password-differs-by-characters>{{ cfg_pw_min_char_diff }}</new-password-differs-by-characters>
+          <password-change-period-block>{{ cfg_pw_block_pwchange_period }}</password-change-period-block>
+          <password-change-on-first-login>{{ cfg_pw_first_login_change }}</password-change-on-first-login>
+          <password-change>
+            <expiration-period>{{ cfg_pw_max_exp_period }}</expiration-period>
+          </password-change>
+  notify: commit_firewall_changes

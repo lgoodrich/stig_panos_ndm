@@ -1,0 +1,73 @@
+# NOTE: Detect the device. Check if its responding and ready for configuration.
+# Gather neceassry facts about the current configuration state. Set facts and
+# variables about the device. Added user information for locally configured
+# administrator accounts - LWG
+
+- name: "interrogate_panos : Get the device status"
+  panos_check:
+    provider: "{{ provider }}"
+  timeout: 0
+  register: device_status
+  changed_when: false
+
+
+- name: "interrogate_panos : Check the device status"
+  assert:
+    that: device_status.msg == "Device is ready."
+    success_msg: "Device is ready, continuing with playbook"
+    fail_msg: "Device is not ready, please re-attempt later"
+
+
+- name: "interrogate_panos : Get pre-configuration facts from the device"
+  panos_facts:
+    provider: "{{ provider }}"
+  register: device_facts
+
+
+- name: "interrogate_panos : Set panos_version fact"
+  set_fact:
+    panos_version: "{{ device_facts.ansible_facts.ansible_net_version }}"
+
+
+- name: "interrogate_panos : Test that detected panos version is supported for this role"
+  assert:
+    that: panos_version is version('10.0.0', '=')
+    success_msg: "The detected version of panOS is supported for this role"
+    fail_msg: "The detected version of panOS has not been tested for support by this role"
+
+
+- name: "interrogate_panos : Get pre-configuration baseline config"
+  panos_type_cmd:
+    provider: "{{ provider }}"
+    cmd: "show"
+    xpath: "/config/devices/entry[@name='localhost.localdomain']"
+  register: panos_config
+
+
+- name: "interrogate_panos : Set pre-configuration fact with JSON output of config"
+  set_fact:
+    panos_preconfig_json: "{{ panos_config.stdout }}"
+
+
+- name: "interrogate_panos : Set pre-configuration fact with hash of baseline config"
+  set_fact:
+    pan_device_preconfig_hash: "{{ panos_config.stdout | checksum }}"
+
+
+- name: "interrogate_panos : Get user account information"
+  panos_type_cmd:
+    provider: "{{ provider }}"
+    cmd: "show"
+    xpath: "/config/mgt-config/users"
+  register: panos_user_account_info
+
+
+- name: "interrogate_panos : Create JSON object with user account info"
+  set_fact:
+    panos_user_account_info: "{{ panos_user_account_info.stdout }}"
+
+
+- name: "interrogate_panos : Set fact with admin user names"
+  set_fact:
+    panos_admin_usernames: "{{ panos_user_account_info.users.entry | map(attribute='@name') | flatten }}"
+

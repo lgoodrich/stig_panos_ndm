@@ -1,0 +1,6 @@
+#* Example yml inventory for panos devices
+
+panos_devices:
+  hosts:
+    test_device:
+      ansible_host: 192.168.0.20

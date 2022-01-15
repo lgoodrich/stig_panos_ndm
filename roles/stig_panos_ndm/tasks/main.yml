@@ -1,0 +1,22 @@
+# tasks file for stig_panos_ndm
+
+- include_tasks: interrogate_panos.yml
+  tags:
+    - interrogate_panos
+    - always
+
+- include_tasks: cfg_auth.yml
+  tags:
+    - cfg_auth
+
+- include_tasks: cfg_mgmt.yml
+  tags:
+    - cfg_mgmt
+
+- include_tasks: cfg_pw.yml
+  tags:
+    - cfg_pw
+
+- include_tasks: cfg_sys.yml
+  tags:
+    - cfg_sys

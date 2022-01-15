@@ -1,0 +1,51 @@
+# Test all the management setting inputs here. In case someone overrides the
+# default values with something below minimum standard. Fail out and notify them
+# if they do. - LWG
+- name: "cfg_mgmt : Test STIG management and common criteria setting inputs"
+  assert:
+    that:
+      - cfg_mgmt_idle_timeout >= 10
+      - cfg_mgmt_log_high_dp_load == 'yes'
+      - cfg_mgmt_cc_alarm_gen_enabled == 'yes'
+      - cfg_mgmt_cc_alarm_gen_threshold_traffic <= 75
+      - cfg_mgmt_cc_alarm_gen_threshold_threat <= 75
+      - cfg_mgmt_cc_alarm_gen_threshold_config <= 75
+      - cfg_mgmt_cc_alarm_gen_threshold_system <= 75
+      - cfg_mgmt_cc_alarm_gen_threshold_alarm <= 75
+      - cfg_mgmt_cc_alarm_gen_threshold_hipmatch <= 75
+    success_msg: "All input values for management and common criteria settings meet STIG requirements"
+    fail_msg: "One or more input value for management and common criteria settings do not meet STIG requirements"
+
+
+# Per STIG rule 77197 - Device must be configured with a US GIS login banner
+- name : "cfg_mgmt : Configure login banner"
+  panos_mgtconfig:
+    provider: "{{ provider }}"
+    login_banner: "{{ cfg_mgmt_login_banner }}"
+  notify: commit_firewall_changes
+  when: panos_preconfig_json['entry']['deviceconfig']['system']['login-banner'] != cfg_mgmt_login_banner
+
+
+# Per STIG rule 77233 - Device must enforce idle session timeout
+# Per STIG rule 77239 - Device must enforce common criteria alarm settings
+# Per STIG rule 77241 - Device must enforce common criteria alarm generation
+# Per STIG rule 77273 - Device must log when there is high data plane load
+- name: "cfg_mgmt : Configure additional device management settings and common criteria alarm thresholds"
+  panos_config_element:
+    provider: '{{ provider }}'
+    xpath: '/config/devices/entry[@name="localhost.localdomain"]/deviceconfig/setting/management'
+    element: |
+      <idle-timeout>{{ cfg_mgmt_idle_timeout }}</idle-timeout>
+      <enable-log-high-dp-load>{{ cfg_mgmt_log_high_dp_load }}</enable-log-high-dp-load>
+      <common-criteria-alarm-generation>
+        <enable-alarm-generation>{{ cfg_mgmt_cc_alarm_gen_enabled }}</enable-alarm-generation>
+        <log-databases-alarm-threshold>
+          <traffic>{{ cfg_mgmt_cc_alarm_gen_threshold_traffic }}</traffic>
+          <threat>{{ cfg_mgmt_cc_alarm_gen_threshold_threat }}</threat>
+          <config>{{ cfg_mgmt_cc_alarm_gen_threshold_config }}</config>
+          <system>{{ cfg_mgmt_cc_alarm_gen_threshold_system }}</system>
+          <alarm>{{ cfg_mgmt_cc_alarm_gen_threshold_alarm }}</alarm>
+          <hipmatch>{{ cfg_mgmt_cc_alarm_gen_threshold_hipmatch }}</hipmatch>
+        </log-databases-alarm-threshold>
+      </common-criteria-alarm-generation>
+  notify: commit_firewall_changes

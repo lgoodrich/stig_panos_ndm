@@ -1,0 +1,26 @@
+#* Test all of system configuration inputs in case someone overrides defaults.
+#* If AO authorizes variation to a STIG requirement, make sure to change the
+#* test to match your approved variation. -LWG
+- name: "cfg_sys : Test that all system configuration input variables meet requirements"
+  assert:
+    that:
+      - cfg_sys_time_zone == 'UTC' or cfg_sys_time_zone == 'GMT'
+      - cfg_sys_disable_http == 'yes'
+      - cfg_sys_disable_telnet == 'yes'
+    success_msg: "All system config input variable values meet STIG requirements"
+    fail_msg: "One or more system config input variable value do not meet STIG requirements"
+
+
+# Per STIG rule 77227 - Device must have HTTP and TELNET service disabled
+# Per STIG rule 77249 - Device must have a timezone set
+- name: "cfg_sys : Configure system - Set TZ and disable HTTP and TELNET"
+  panos_config_element:
+    provider: '{{ provider }}'
+    xpath: '/config/devices/entry[@name="localhost.localdomain"]/deviceconfig/system'
+    element: |
+      <timezone>{{ cfg_sys_time_zone }}</timezone>
+      <service>
+        <disable-http>{{ cfg_sys_disable_http }}</disable-http>
+        <disable-telnet>{{ cfg_sys_disable_telnet }}</disable-telnet>
+      </service>
+  notify: commit_firewall_changes

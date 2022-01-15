@@ -1,0 +1,6 @@
+# handlers file for palo_alto
+
+- name: commit_firewall_changes
+  panos_commit_firewall:
+    provider: "{{ provider }}"
+  changed_when: false

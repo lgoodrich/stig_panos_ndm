@@ -1,0 +1,67 @@
+# defaults file for stig_panos_ndm
+
+cfg_auth_emergency_admin_username: 'admin'
+cfg_auth_non_emergency_auth_profile_name: 'non_emergency_admin_accounts'
+cfg_pw_complexity_enabled: 'yes'
+cfg_pw_first_login_change: 'yes'
+cfg_pw_min_length: 15
+cfg_pw_min_history_count: 5
+cfg_pw_min_ucase_letters: 1
+cfg_pw_min_lcase_letters: 1
+cfg_pw_min_numeric_letters: 1
+cfg_pw_min_special_chars: 1
+cfg_pw_min_char_diff: 8
+cfg_pw_block_pwchange_period: 1
+cfg_pw_max_exp_period: 60
+cfg_sys_time_zone: 'GMT'
+cfg_sys_disable_http: 'yes'
+cfg_sys_disable_telnet: 'yes'
+cfg_mgmt_https_port: 443
+cfg_mgmt_primary_dns: '4.4.4.4'
+cfg_mgmt_secondary_dns: '8.8.8.8'
+cfg_mgmt_primary_ntp: '1.1.1.1'
+cfg_mgmt_secondary_ntp: '2.2.2.2'
+cfg_mgmt_primary_panorama: '1.1.1.3'
+cfg_mgmt_secondary_panorama: '1.1.1.4'
+cfg_mgmt_device_hostname: 'PA_VM'
+cfg_mgmt_idle_timeout: 10
+cfg_mgmt_log_high_dp_load: 'yes'
+cfg_mgmt_cc_alarm_gen_enabled: 'yes'
+cfg_mgmt_cc_alarm_gen_threshold_traffic: 75
+cfg_mgmt_cc_alarm_gen_threshold_threat: 75
+cfg_mgmt_cc_alarm_gen_threshold_config: 75
+cfg_mgmt_cc_alarm_gen_threshold_system: 75
+cfg_mgmt_cc_alarm_gen_threshold_alarm: 75
+cfg_mgmt_cc_alarm_gen_threshold_hipmatch: 75
+cfg_mgmt_login_banner: |
+  You are accessing a U.S. Government (USG) Information System
+  (IS) that is provided for USG-authorized use only. By using
+  this IS (which includes any device attached to this IS), you
+  consent to the following conditions:
+
+  The USG routinely intercepts and monitors communications on
+  this IS for purposes including, but not limited to,
+  penetration testing, COMSEC monitoring, network operations and
+  defense, personnel misconduct (PM), law enforcement (LE), and
+  counterintelligence (CI) investigations.
+
+  At any time, the USG may inspect and seize data stored on this
+  IS.
+
+  Communications using, or data stored on, this IS are not
+  private, are subject to routine monitoring, interception, and
+  search, and may be disclosed or used for any USG-authorized
+  purpose.
+
+  This IS includes security measures (e.g., authentication and
+  access controls) to protect USG interests--not for your
+  personal benefit or privacy.
+
+  Notwithstanding the above, using this IS does not constitute
+  consent to PM, LE or CI investigative searching or monitoring
+  of the content of privileged communications, or work product,
+  related to personal representation or services by attorneys,
+  psychotherapists, or clergy, and their assistants. Such
+  communications and work product are private and confidential.
+
+  See User Agreement for details.

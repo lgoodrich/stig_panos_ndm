@@ -1,0 +1,50 @@
+# This task file is for authentication and authorization related settings. - LWG
+
+# This creates the authentication profile with the stig limitations required.
+# Following the function, we iterate over all admin users except the emergency
+# admin and ensure this profile is applied. - LWG
+# Notice when length of the user entry array is greater than 1. If the only
+# user on the device is the emergency admin account, this array length would
+# equal 1 and the following rule config work would not be needed. - LWG
+# Per STIG rule 77195 - Maximum 3 invalid login attempts for all users except
+# for the emergency administration account with a lockout time of 0 ie require
+# manual unlock.
+- name: "cfg_auth : Configure an administrator authentication profile"
+  panos_config_element:
+    provider: '{{ provider }}'
+    xpath: "/config/shared/authentication-profile"
+    element: |
+      <entry name="{{ cfg_auth_non_emergency_auth_profile_name }}">
+        <multi-factor-auth>
+          <mfa-enable>no</mfa-enable>
+        </multi-factor-auth>
+        <method>
+          <none/>
+        </method>
+        <allow-list>
+          <member>all</member>
+        </allow-list>
+        <lockout>
+          <failed-attempts>3</failed-attempts>
+        </lockout>
+      </entry>
+  notify: commit_firewall_changes
+  when: panos_admin_usernames | length > 1
+
+
+# TODO: This is working but not idempotent - LWG
+# Now we apply the authentication profile to all users that are not the
+# emergency admin. - LWG
+# Per STIG rule 77195 - Maximum 3 invalid login attempts for all users except
+# for the emergency administration account with a lockout time of 0 ie require
+# manual unlock.
+- name: "cfg_auth : Apply authentication profile to non emergency admin accounts"
+  panos_type_cmd:
+    provider: '{{ provider }}'
+    cmd: "edit"
+    xpath: "/config/mgt-config/users/entry[@name='{{ item }}']/authentication-profile"
+    element: |
+      <authentication-profile>{{ cfg_auth_non_emergency_auth_profile_name }}</authentication-profile>
+  loop: "{{ panos_admin_usernames }}"
+  notify: commit_firewall_changes
+  when: item != cfg_auth_emergency_admin_username
