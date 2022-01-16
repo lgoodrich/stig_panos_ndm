@@ -49,3 +49,15 @@
         </log-databases-alarm-threshold>
       </common-criteria-alarm-generation>
   notify: commit_firewall_changes
+
+
+# Per STIG rule 77257 - Device must use SNMPv3 only
+- name: "cfg_mgmt : Configure SNMP version setting"
+  panos_config_element:
+    provider: '{{ provider }}'
+    xpath: "/config/devices/entry[@name='localhost.localdomain']/deviceconfig/system/snmp-setting/access-setting"
+    element: |
+        <version>
+          <v3/>
+        </version>
+  notify: commit_firewall_changes
